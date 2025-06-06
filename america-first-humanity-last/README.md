@@ -192,3 +192,116 @@ Jetzt musst du sie nur noch herunterladen, passend benennen (bild-1.png, bild-2.
 
 Viel Erfolg bei deinem Projekt! Das wird sicher ein sehr eindrucksvolles Video.
 ```
+
+---
+
+## Video Generation
+
+**Model**: Claude 4
+
+**Prompt**: 
+```
+ich möchte ein kleines musikvideo generieren mit ffmpeg. die bilder liegen im verzeichnis images und heissen bild-1.jpg bis bild-12.jpg ... die audio-datei heisst background_music.mp3 . ich möchte gerne, dass die 12 bilder als wechselnde hintergründe mit coolen übergängen immer wieder wiederholt werden, über die ganze länge der audio-datei. die 12-bilder-schleife kann sich ruhig mehrmals wiederholen während der gesamten laufzeit. die einzelnen bilder sollten ca. 5 sekunden angezeigt werden, bevor der übergang zum nächsten kommt. versuche, die übergänge abwechslungsreich zu gestalten. bitte erstelle den passenden ffmpeg-befehl dafür
+
+```
+
+**Response**:
+```bash
+#!/bin/bash
+
+# Einfache Version mit Crossfade-Übergängen
+ffmpeg -loop 1 -t 5 -i images/bild-1.jpg \
+       -loop 1 -t 5 -i images/bild-2.jpg \
+       -loop 1 -t 5 -i images/bild-3.jpg \
+       -loop 1 -t 5 -i images/bild-4.jpg \
+       -loop 1 -t 5 -i images/bild-5.jpg \
+       -loop 1 -t 5 -i images/bild-6.jpg \
+       -loop 1 -t 5 -i images/bild-7.jpg \
+       -loop 1 -t 5 -i images/bild-8.jpg \
+       -loop 1 -t 5 -i images/bild-9.jpg \
+       -loop 1 -t 5 -i images/bild-10.jpg \
+       -loop 1 -t 5 -i images/bild-11.jpg \
+       -loop 1 -t 5 -i images/bild-12.jpg \
+       -i background_music.mp3 \
+       -filter_complex "
+       [0:v]scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,setpts=PTS-STARTPTS[v0];
+       [1:v]scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,setpts=PTS-STARTPTS+4.5/TB[v1];
+       [2:v]scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,setpts=PTS-STARTPTS+9/TB[v2];
+       [3:v]scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,setpts=PTS-STARTPTS+13.5/TB[v3];
+       [4:v]scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,setpts=PTS-STARTPTS+18/TB[v4];
+       [5:v]scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,setpts=PTS-STARTPTS+22.5/TB[v5];
+       [6:v]scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,setpts=PTS-STARTPTS+27/TB[v6];
+       [7:v]scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,setpts=PTS-STARTPTS+31.5/TB[v7];
+       [8:v]scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,setpts=PTS-STARTPTS+36/TB[v8];
+       [9:v]scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,setpts=PTS-STARTPTS+40.5/TB[v9];
+       [10:v]scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,setpts=PTS-STARTPTS+45/TB[v10];
+       [11:v]scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,setpts=PTS-STARTPTS+49.5/TB[v11];
+       [v0][v1]xfade=transition=fade:duration=0.5:offset=4.5[f0];
+       [f0][v2]xfade=transition=wipeleft:duration=0.5:offset=9[f1];
+       [f1][v3]xfade=transition=slidedown:duration=0.5:offset=13.5[f2];
+       [f2][v4]xfade=transition=circleopen:duration=0.5:offset=18[f3];
+       [f3][v5]xfade=transition=dissolve:duration=0.5:offset=22.5[f4];
+       [f4][v6]xfade=transition=wiperight:duration=0.5:offset=27[f5];
+       [f5][v7]xfade=transition=slideup:duration=0.5:offset=31.5[f6];
+       [f6][v8]xfade=transition=circleclose:duration=0.5:offset=36[f7];
+       [f7][v9]xfade=transition=fade:duration=0.5:offset=40.5[f8];
+       [f8][v10]xfade=transition=diagtl:duration=0.5:offset=45[f9];
+       [f9][v11]xfade=transition=diagtr:duration=0.5:offset=49.5[video];
+       [video]loop=loop=-1:size=1:start=0[looped_video]
+       " \
+       -map "[looped_video]" -map 12:a \
+       -c:v libx264 -preset medium -crf 23 \
+       -c:a aac -b:a 128k \
+       -pix_fmt yuv420p \
+       -shortest \
+       output_video.mp4
+
+# Alternative: Erweiterte Version mit mehr Übergangseffekten
+echo "Erstelle erweiterte Version mit mehr Effekten..."
+
+ffmpeg -loop 1 -t 5 -i images/bild-1.jpg \
+       -loop 1 -t 5 -i images/bild-2.jpg \
+       -loop 1 -t 5 -i images/bild-3.jpg \
+       -loop 1 -t 5 -i images/bild-4.jpg \
+       -loop 1 -t 5 -i images/bild-5.jpg \
+       -loop 1 -t 5 -i images/bild-6.jpg \
+       -loop 1 -t 5 -i images/bild-7.jpg \
+       -loop 1 -t 5 -i images/bild-8.jpg \
+       -loop 1 -t 5 -i images/bild-9.jpg \
+       -loop 1 -t 5 -i images/bild-10.jpg \
+       -loop 1 -t 5 -i images/bild-11.jpg \
+       -loop 1 -t 5 -i images/bild-12.jpg \
+       -i background_music.mp3 \
+       -filter_complex "
+       [0:v]scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,zoompan=z='if(lte(zoom,1.0),1.5,max(1.001,zoom-0.0015))':d=125:x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':s=1920x1080,setpts=PTS-STARTPTS[v0];
+       [1:v]scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,zoompan=z='if(lte(zoom,1.0),1.0,max(1.001,zoom-0.0015))':d=125:x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':s=1920x1080,setpts=PTS-STARTPTS+4.5/TB[v1];
+       [2:v]scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,zoompan=z='if(lte(zoom,1.0),1.3,max(1.001,zoom-0.0015))':d=125:x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':s=1920x1080,setpts=PTS-STARTPTS+9/TB[v2];
+       [3:v]scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,zoompan=z='if(lte(zoom,1.0),1.0,max(1.001,zoom-0.0015))':d=125:x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':s=1920x1080,setpts=PTS-STARTPTS+13.5/TB[v3];
+       [4:v]scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,zoompan=z='if(lte(zoom,1.0),1.4,max(1.001,zoom-0.0015))':d=125:x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':s=1920x1080,setpts=PTS-STARTPTS+18/TB[v4];
+       [5:v]scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,zoompan=z='if(lte(zoom,1.0),1.0,max(1.001,zoom-0.0015))':d=125:x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':s=1920x1080,setpts=PTS-STARTPTS+22.5/TB[v5];
+       [6:v]scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,zoompan=z='if(lte(zoom,1.0),1.2,max(1.001,zoom-0.0015))':d=125:x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':s=1920x1080,setpts=PTS-STARTPTS+27/TB[v6];
+       [7:v]scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,zoompan=z='if(lte(zoom,1.0),1.0,max(1.001,zoom-0.0015))':d=125:x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':s=1920x1080,setpts=PTS-STARTPTS+31.5/TB[v7];
+       [8:v]scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,zoompan=z='if(lte(zoom,1.0),1.6,max(1.001,zoom-0.0015))':d=125:x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':s=1920x1080,setpts=PTS-STARTPTS+36/TB[v8];
+       [9:v]scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,zoompan=z='if(lte(zoom,1.0),1.0,max(1.001,zoom-0.0015))':d=125:x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':s=1920x1080,setpts=PTS-STARTPTS+40.5/TB[v9];
+       [10:v]scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,zoompan=z='if(lte(zoom,1.0),1.35,max(1.001,zoom-0.0015))':d=125:x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':s=1920x1080,setpts=PTS-STARTPTS+45/TB[v10];
+       [11:v]scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,zoompan=z='if(lte(zoom,1.0),1.0,max(1.001,zoom-0.0015))':d=125:x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':s=1920x1080,setpts=PTS-STARTPTS+49.5/TB[v11];
+       [v0][v1]xfade=transition=fade:duration=0.5:offset=4.5[f0];
+       [f0][v2]xfade=transition=wipeleft:duration=0.5:offset=9[f1];
+       [f1][v3]xfade=transition=slidedown:duration=0.5:offset=13.5[f2];
+       [f2][v4]xfade=transition=circleopen:duration=0.5:offset=18[f3];
+       [f3][v5]xfade=transition=dissolve:duration=0.5:offset=22.5[f4];
+       [f4][v6]xfade=transition=wiperight:duration=0.5:offset=27[f5];
+       [f5][v7]xfade=transition=slideup:duration=0.5:offset=31.5[f6];
+       [f6][v8]xfade=transition=circleclose:duration=0.5:offset=36[f7];
+       [f7][v9]xfade=transition=pixelize:duration=0.5:offset=40.5[f8];
+       [f8][v10]xfade=transition=diagtl:duration=0.5:offset=45[f9];
+       [f9][v11]xfade=transition=hlslice:duration=0.5:offset=49.5[video];
+       [video]loop=loop=-1:size=1:start=0[looped_video]
+       " \
+       -map "[looped_video]" -map 12:a \
+       -c:v libx264 -preset medium -crf 23 \
+       -c:a aac -b:a 128k \
+       -pix_fmt yuv420p \
+       -shortest \
+       output_video_enhanced.mp4
+```
